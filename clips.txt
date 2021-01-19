@@ -1,0 +1,19 @@
+java -DAUTH_ENABLED=false -DDB_USER=bramb -DDB_PASSWORD=grespost -jar /mnt/c/lib/jetty-runner.jar elucidate-server/target/annotation.war
+
+docker pull dlcs/elucidate-server:1.5.1
+
+docker run --name elucidate -p 8080:8080 dlcs/elucidate-server:1.5.1
+
+docker build -t registry.diginfra.net/bramb/elucidate-postgres:latest .
+docker push registry.diginfra.net/bramb/elucidate-postgres:latest
+
+
+docker run --detach --name el-psql --env POSTGRES_PASSWORD=whatever bramb/elucidate-postgres
+
+docker ps -a
+
+docker exec -ti el-psql psql -U elucidate annotations
+
+docker-compose down --remove-orphans && docker ps -a
+
+docker build -t brambdocker/elucidate-postgres:latest .

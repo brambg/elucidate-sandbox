@@ -1,0 +1,40 @@
+version: '3'
+services:
+  db:
+    container_name: elucidate_db
+    image: postgres
+    shm_size: 1g
+    networks:
+      - nginxproxynetwork
+    ports:
+      - 5432:5432
+    env_file:
+      - elucidate.env
+    restart: always
+    volumes:
+      - database-data:/var/lib/postgresql/data/
+  web:
+    container_name: elucidate_server
+    image: dlcs/elucidate-server:1.5.1
+    networks:
+      - nginxproxynetwork
+    expose:
+      - 80
+    environment:
+      - VIRTUAL_HOST=elucidate.tt.di.huc.knaw.nl
+    env_file:
+      - elucidate.env
+    depends_on:
+      - db
+    restart: always
+    ports:
+      - 8080:80
+
+networks:
+  nginxproxynetwork:
+    external:
+      name: nginxproxynetwork
+
+volumes:
+  database-data:
+    driver: local

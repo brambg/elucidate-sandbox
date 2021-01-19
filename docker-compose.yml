@@ -1,0 +1,38 @@
+version: '3'
+services:
+  database:
+    container_name: elucidate_db
+    image: brambdocker/elucidate-postgres
+    shm_size: 1g
+    networks:
+      - elucidate_network
+    ports:
+      - 5432:5432
+    env_file:
+      - postgres.env
+    restart: unless-stopped
+    volumes:
+#      - database-data:/var/lib/postgresql/data/
+      - database-data:/tmp/postgresql/data/
+  web:
+    container_name: elucidate_server
+    image: dlcs/elucidate-server:1.5.1
+    networks:
+      - elucidate_network
+    env_file:
+      - elucidate.env
+    depends_on:
+      - database
+    restart: unless-stopped
+    ports:
+      - 8080:8080
+    volumes:
+      - ./scripts:/scripts
+    command: ["/scripts/wait-for-it.sh", "database:5432", "--", "./bin/catalina.sh", "run"]
+
+networks:
+  elucidate_network:
+
+volumes:
+  database-data:
+    driver: local
