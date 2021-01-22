@@ -2,35 +2,45 @@ version: '3'
 services:
   db:
     container_name: elucidate_db
-    image: postgres
+    image: brambdocker/elucidate-postgres:latest
     shm_size: 1g
     networks:
-      - nginxproxynetwork
+      - elucidate_network
     ports:
-      - 5432:5432
-    env_file:
-      - elucidate.env
-    restart: always
+      - 15432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=elucidate
+      - POSTGRES_DB=annotations
+    restart: unless-stopped
     volumes:
       - database-data:/var/lib/postgresql/data/
   web:
     container_name: elucidate_server
     image: dlcs/elucidate-server:1.5.1
     networks:
+      - elucidate_network
       - nginxproxynetwork
-    expose:
-      - 80
     environment:
       - VIRTUAL_HOST=elucidate.tt.di.huc.knaw.nl
-    env_file:
-      - elucidate.env
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=elucidate
+      - DATABASE_URL=jdbc:postgresql://database:15432/annotations
+      - DB_URL=jdbc:postgresql://database:15432/annotations
+      - AUTH_TOKEN_VERIFIERKEY=notinuse
     depends_on:
       - db
-    restart: always
+    tty: true
     ports:
-      - 8080:80
+      - 2021:8080
+    expose:
+      - 2021
+    volumes:
+      - ./scripts:/scripts
+    command: [ "/scripts/wait-for-it.sh", "database:15432", "-t", "120", "--", "./bin/catalina.sh", "run" ]
 
 networks:
+  elucidate_network:
   nginxproxynetwork:
     external:
       name: nginxproxynetwork

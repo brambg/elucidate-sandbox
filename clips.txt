@@ -16,4 +16,4 @@ docker exec -ti el-psql psql -U elucidate annotations
 
 docker-compose down --remove-orphans && docker ps -a
 
-docker build -t brambdocker/elucidate-postgres:latest .
+docker build -t brambdocker/elucidate-postgres:latest . && docker push brambdocker/elucidate-postgres:latest

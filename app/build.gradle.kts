@@ -6,6 +6,10 @@
  * User Manual available at https://docs.gradle.org/6.7.1/userguide/building_java_projects.html
  */
 
+val ktor_version = "1.5.0"
+val kotlin_serialization = "1.5.0"
+val logback_version = "0.20.0"
+
 plugins {
     // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
     id("org.jetbrains.kotlin.jvm") version "1.3.72"
@@ -34,7 +38,10 @@ dependencies {
     // This dependency is used by the application.
     implementation("com.google.guava:guava:29.0-jre")
 
-    implementation("com.github.anno4j:anno4j-core:2.4.1")
+    implementation("io.ktor:ktor-client-cio:$ktor_version")
+    implementation("io.ktor:ktor-client-apache:$ktor_version")
+    implementation("org.apache.httpcomponents:httpclient:4.5.10")
+    implementation("com.beust:klaxon:5.0.1")
 
     // Use the Kotlin test library.
     testImplementation("org.jetbrains.kotlin:kotlin-test")

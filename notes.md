@@ -1,4 +1,4 @@
-- elucidate-server defines containers, which are not part of the w3c WA specs
+
 
 - create container
   POST to /w3c/

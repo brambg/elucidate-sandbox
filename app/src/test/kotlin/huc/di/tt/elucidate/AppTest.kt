@@ -3,8 +3,6 @@
  */
 package huc.di.tt.elucidate
 
-import com.github.anno4j.Anno4j
-import com.github.anno4j.model.Annotation
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 
@@ -15,16 +13,4 @@ class AppTest {
         assertNotNull(classUnderTest.greeting, "app should have a greeting")
     }
 
-    @Test
-    fun anno4j() {
-        val anno4j = Anno4j()
-
-        // Create the base annotation
-        val annotation = anno4j.createObject(Annotation::class.java).apply {
-            addBodyText("hello world")
-            created = "2014-09-28T12:00:00Z"
-        }
-        println(annotation.resourceAsString)
-
-    }
 }
