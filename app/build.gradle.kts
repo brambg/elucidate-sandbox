@@ -23,7 +23,7 @@ repositories {
     maven {
         url = uri("http://maven.huygens.knaw.nl/repository")
     }
-
+    mavenCentral()
     // Use JCenter for resolving dependencies.
     jcenter()
 }
@@ -40,8 +40,12 @@ dependencies {
 
     implementation("io.ktor:ktor-client-cio:$ktor_version")
     implementation("io.ktor:ktor-client-apache:$ktor_version")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.0")
     implementation("org.apache.httpcomponents:httpclient:4.5.10")
     implementation("com.beust:klaxon:5.0.1")
+    implementation("com.github.jsonld-java:jsonld-java:0.13.2")
+    implementation("ch.qos.logback:logback-classic:1.3.0-alpha5")
+    implementation("com.digirati.elucidate:elucidate-common-lib:1.5.1")
 
     // Use the Kotlin test library.
     testImplementation("org.jetbrains.kotlin:kotlin-test")
