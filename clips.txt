@@ -21,4 +21,10 @@ docker-compose down --remove-orphans && docker ps -a
 
 docker build -t brambdocker/elucidate-postgres:latest . && docker push brambdocker/elucidate-postgres:latest
 
-docker build -t brambdocker/elucidate-server:1.5.2 . && docker push brambdocker/elucidate-server:1.5.2
+# in ~/workspaces/elucidate-server/elucidate-server
+docker build -t brambdocker/huc-elucidate-server:1.6.0 . && docker push brambdocker/huc-elucidate-server:1.6.0
+
+docker exec -ti elucidate_db psql -U postgres annotations
+
+# psql queries
+select json->'@type' as type from annotation;
