@@ -1,7 +1,10 @@
 #!/bin/bash
-EL_BASE=http://localhost:8080/annotation
-ACCEPT_HEADER=
-CONTENT_TYPE_HEADER=
+EL_BASE=$1
+if [[ -z $EL_BASE ]]; then
+  echo "Usage: $0 <elucidate_base_url>"
+  echo "example: $0 http://localhost:8080/annotation"
+  exit 1
+fi
 CONTAINER_URI=$EL_BASE/w3c/examples/
 
 # create container
