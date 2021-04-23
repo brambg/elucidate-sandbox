@@ -31,6 +31,9 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=elucidate
       - DB_URL=jdbc:postgresql://elucidate_db:5432/annotations
+      - BASE_SCHEME=https
+      - BASE_PORT=443
+      - BASE_HOST=elucidate.tt.di.huc.knaw.nl
       - AUTH_TOKEN_VERIFIERKEY=notinuse
     depends_on:
       - elucidate_db
