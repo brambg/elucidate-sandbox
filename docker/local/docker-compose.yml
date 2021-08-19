@@ -16,7 +16,7 @@ services:
 #      - database-data:/tmp/postgresql/data/
   web:
     container_name: elucidate_server
-    image: brambdocker/huc-elucidate-server:1.6.0
+    image: registry.diginfra.net/bramb/huc-elucidate-server:1.6.0-SNAPSHOT
     networks:
       - elucidate_network
     env_file:
