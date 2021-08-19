@@ -28,3 +28,9 @@ docker exec -ti elucidate_db psql -U postgres annotations
 
 # psql queries
 select json->'@type' as type from annotation;
+
+
+http://localhost:8080/annotation/w3c/services/stats/body?field=id
+http://localhost:8080/annotation/w3c/services/stats/body?field=source
+http://localhost:8080/annotation/w3c/services/stats/target?field=id
+http://localhost:8080/annotation/w3c/services/stats/target?field=source
