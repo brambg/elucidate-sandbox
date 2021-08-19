@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+cd elucidate-server && (
+	echo "- reading project version:"
+	version=$(mvn-show-project-version)
+	echo " $version"
+	echo
+
+	tag=registry.diginfra.net/bramb/huc-elucidate-server:$version
+	echo "- ls -lF target/annotation.war"
+	ls -lF target/annotation.war
+	echo
+
+	echo "- building $tag ..."
+	docker build --tag $tag . && (
+		echo
+		echo "- pushing $tag ..."
+		docker push $tag
+	)
+	echo
+)
