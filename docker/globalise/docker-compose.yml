@@ -1,0 +1,72 @@
+version: '3'
+
+services:
+  glel_homepage:
+    container_name: glel_homepage
+    image: registry.diginfra.net/tt/huc-elucidate-homepage:latest
+    networks:
+      - globalise_elucidate_network
+      - nginxproxynetwork
+    environment:
+      - VIRTUAL_HOST=globalise-elucidate.tt.di.huc.knaw.nl
+      - ELUCIDATE_BASE_URL=https://globalise-elucidate.tt.di.huc.knaw.nl/annotation
+      - BACKEND=http://glelelucidateserver:8080
+    depends_on:
+      - glel_elucidate_server
+    expose:
+      - 80
+    restart: unless-stopped
+
+  glel_elucidate_db:
+    container_name: glel_elucidate_db
+    image: postgres:13-alpine
+    shm_size: 1g
+    networks:
+      - globalise_elucidate_network
+    ports:
+      - 5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=elucidate
+      - POSTGRES_DB=annotations
+    restart: unless-stopped
+    volumes:
+      - globalise-database-data:/var/lib/postgresql/data/
+
+  glel_elucidate_server:
+    container_name: glelelucidateserver
+    image: registry.diginfra.net/tt/huc-elucidate-server:1.6.3
+    networks:
+      - globalise_elucidate_network
+    environment:
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=elucidate
+      - DATABASE_URL=jdbc:postgresql://glel_elucidate_db:5432/annotations
+      - DB_USER=postgres
+      - DB_PASSWORD=elucidate
+      - DB_URL=jdbc:postgresql://glel_elucidate_db:5432/annotations
+      - BASE_SCHEME=https
+      - BASE_PORT=443
+      - BASE_HOST=globalise-elucidate.tt.di.huc.knaw.nl
+      - AUTH_TOKEN_VERIFIERKEY=notinuse
+    depends_on:
+      - glel_elucidate_db
+    tty: true
+    ports:
+      - 8080
+    expose:
+      - 8080
+    restart: unless-stopped
+    volumes:
+      - ./scripts:/scripts
+    command: [ "/scripts/wait-for-it.sh", "glel_elucidate_db:5432", "-t", "120", "--", "./bin/catalina.sh", "run" ]
+
+networks:
+  globalise_elucidate_network:
+  nginxproxynetwork:
+    external:
+      name: nginxproxynetwork
+
+volumes:
+  globalise-database-data:
+    driver: local
