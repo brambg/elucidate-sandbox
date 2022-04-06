@@ -17,7 +17,7 @@ services:
       - database-data:/var/lib/postgresql/data/
   web:
     container_name: elucidate_server
-    image: brambdocker/elucidate-server:1.5.2
+    image: registry.diginfra.net/tt/huc-elucidate-server:1.6.4
     networks:
       - elucidate_network
       - nginxproxynetwork
@@ -26,9 +26,6 @@ services:
       - DATABASE_USER=postgres
       - DATABASE_PASSWORD=elucidate
       - DATABASE_URL=jdbc:postgresql://database:15432/annotations
-      - DB_USER=postgres
-      - DB_PASSWORD=elucidate
-      - DB_URL=jdbc:postgresql://database:15432/annotations
       - AUTH_TOKEN_VERIFIERKEY=notinuse
     depends_on:
       - db

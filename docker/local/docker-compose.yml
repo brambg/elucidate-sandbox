@@ -8,19 +8,23 @@ services:
       - elucidate_network
     ports:
       - 5432:5432
-    env_file:
-      - postgres.env
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=elucidate
+      - POSTGRES_DB=annotations
     restart: unless-stopped
     volumes:
       - database-data:/var/lib/postgresql/data/
-#      - database-data:/tmp/postgresql/data/
   web:
     container_name: elucidate_server
-    image: registry.diginfra.net/bramb/huc-elucidate-server:1.6.0-SNAPSHOT
+    image: registry.diginfra.net/tt/huc-elucidate-server:1.6.4
     networks:
       - elucidate_network
-    env_file:
-      - elucidate.env
+    environment:
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=elucidate
+      - DATABASE_URL=jdbc:postgresql://database:5432/annotations
+      - AUTH_TOKEN_VERIFIERKEY=notinuse
     depends_on:
       - database
     restart: unless-stopped
