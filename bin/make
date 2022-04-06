@@ -1,4 +1,2 @@
 #!/usr/bin/env bash
-for d in elucidate-parent elucidate-common-lib elucidate-converter elucidate-server; do
-  (cd $d && mvn clean package install -U)
-done
+cd elucidate-parent && mvn package install -U

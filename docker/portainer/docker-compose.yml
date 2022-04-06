@@ -16,6 +16,7 @@ services:
     restart: unless-stopped
     volumes:
       - database-data:/var/lib/postgresql/data/
+      
   elucidate_server:
     container_name: elucidate_server
     image: brambdocker/huc-elucidate-server:1.6.0

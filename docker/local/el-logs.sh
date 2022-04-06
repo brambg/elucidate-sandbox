@@ -1,1 +1,1 @@
-docker-compose logs --follow
+docker-compose logs --follow --tail 100

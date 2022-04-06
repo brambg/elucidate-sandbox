@@ -34,3 +34,84 @@ http://localhost:8080/annotation/w3c/services/stats/body?field=id
 http://localhost:8080/annotation/w3c/services/stats/body?field=source
 http://localhost:8080/annotation/w3c/services/stats/target?field=id
 http://localhost:8080/annotation/w3c/services/stats/target?field=source
+
+# connect to postgres db in elucidate_db:
+psql -h localhost -U postgres annotations
+
+select distinct(targetiri) from annotation_target order by targetiri;
+select distinct(json) from annotation_target where sourceiri = 'https://demorepo.tt.di.huc.knaw.nl/task/find/volume-1728/contents';
+select distinct(json) from annotation_target where sourceiri = 'http://localhost:8080/textrepo/versions/x/contents';
+
+select json -> 'http://www.w3.org/ns/oa#hasSelector' -> 0 -> 'http://www.w3.org/ns/oa#start' -> 0 -> '@value' as _start,
+       json -> 'http://www.w3.org/ns/oa#hasSelector' -> 0 -> 'http://www.w3.org/ns/oa#end' -> 0 -> '@value' as _end
+  from annotation_target
+  where sourceiri = 'https://demorepo.tt.di.huc.knaw.nl/task/find/volume-1728/contents'
+  order by _start, _end;
+
+select annotationid,
+       json -> 'http://www.w3.org/ns/oa#hasSelector' -> 0 -> 'http://www.w3.org/ns/oa#start' -> 0 ->> '@value' as _start,
+       json -> 'http://www.w3.org/ns/oa#hasSelector' -> 0 -> 'http://www.w3.org/ns/oa#end' -> 0 ->> '@value' as _end
+from annotation_target
+where sourceiri = 'https://demorepo.tt.di.huc.knaw.nl/task/find/volume-1728/contents'
+  and (json -> 'http://www.w3.org/ns/oa#hasSelector' -> 0 -> 'http://www.w3.org/ns/oa#start' -> 0 ->> '@value')::float >= 55900
+  and (json -> 'http://www.w3.org/ns/oa#hasSelector' -> 0 -> 'http://www.w3.org/ns/oa#end' -> 0 ->> '@value')::float <= 55990
+order by _start, _end;
+
+select distinct(jsonb_path_query(json, '$.\@type')) as type from annotation_target order by type;
+
+select sourceiri from annotation_target where jsonb_path_exists(json, '$.\@type ? (@ == $text)','{"text":"http://purl.org/dc/dcmitype/Text"}') order by sourceiri;
+
+select annotationid,
+       json -> 'http://www.w3.org/ns/oa#hasSelector' -> 0 -> 'http://www.w3.org/ns/oa#start' -> 0 ->> '@value' as _start,
+       json -> 'http://www.w3.org/ns/oa#hasSelector' -> 0 -> 'http://www.w3.org/ns/oa#end' -> 0 ->> '@value' as _end
+from annotation_target
+where sourceiri = 'https://demorepo.tt.di.huc.knaw.nl/task/find/volume-1728/contents'
+  and jsonb_path_exists(json, '$."http://www.w3.org/ns/oa#hasSelector"', '{"selector":"urn:example:republic:TextAnchorSelector","min":55900,"max":55990}')
+order by _start, _end;
+
+select annotationid,
+       json -> 'http://www.w3.org/ns/oa#hasSelector' -> 0 -> 'http://www.w3.org/ns/oa#start' -> 0 ->> '@value' as _start,
+       json -> 'http://www.w3.org/ns/oa#hasSelector' -> 0 -> 'http://www.w3.org/ns/oa#end' -> 0 ->> '@value' as _end
+from annotation_target
+where jsonb_path_exists(json,
+                        '$."http://www.w3.org/ns/oa#hasSelector"[*] ? (@."@type" == $selectortype && @."http://www.w3.org/ns/oa#start"[0]."@value" >= $min && @."http://www.w3.org/ns/oa#end"[0]."@value" <= $max)',
+                        '{"selectortype":"urn:example:republic:TextAnchorSelector","min":55900,"max":55990}')
+order by _start, _end;
+
+
+test urls
+http://localhost:18080/annotation/w3c/services/search/target?fields=source&value=urn
+http://localhost:18080/annotation/oa/services/search/target?fields=source&value=urn
+http://localhost:18080/annotation/w3c/services/search/range?target_id=https%3A%2F%2Fdemorepo.tt.di.huc.knaw.nl%2Ftask%2Ffind%2Fvolume-1728%2Fcontents&range_start=55900&range_end=55990
+http://localhost:18080/annotation/w3c/services/search/overlap?target_id=https%3A%2F%2Fdemorepo.tt.di.huc.knaw.nl%2Ftask%2Ffind%2Fvolume-1728%2Fcontents&range_start=55900&range_end=55990
+http://localhost:18080/annotation/oa/services/search/range?target_id=https%3A%2F%2Fdemorepo.tt.di.huc.knaw.nl%2Ftask%2Ffind%2Fvolume-1728%2Fcontents&range_start=55900&range_end=55990
+http://localhost:18080/annotation/oa/services/search/overlap?target_id=https%3A%2F%2Fdemorepo.tt.di.huc.knaw.nl%2Ftask%2Ffind%2Fvolume-1728%2Fcontents&range_start=55900&range_end=55990
+http://localhost:18080/annotation/w3c/services/search/range?target_id=https%3A%2F%2Fdemorepo.tt.di.huc.knaw.nl%2Ftask%2Ffind%2Fvolume-1728%2Fcontents&range_start=55900.1&range_end=55990.5
+http://localhost:18080/annotation/w3c/services/search/overlap?target_id=https%3A%2F%2Fdemorepo.tt.di.huc.knaw.nl%2Ftask%2Ffind%2Fvolume-1728%2Fcontents&range_start=55900.002&range_end=55990.844
+http://localhost:18080/annotation/oa/services/search/range?target_id=https%3A%2F%2Fdemorepo.tt.di.huc.knaw.nl%2Ftask%2Ffind%2Fvolume-1728%2Fcontents&range_start=55900.123&range_end=55990.456
+http://localhost:18080/annotation/oa/services/search/overlap?target_id=https%3A%2F%2Fdemorepo.tt.di.huc.knaw.nl%2Ftask%2Ffind%2Fvolume-1728%2Fcontents&range_start=55900.0&range_end=55990.789
+http://localhost:18080/annotation/w3c/services/stats/target?field=source
+
+authorization examples (see jwt.io, use auth.token.verifierKey as 'your-256-bit-secret', don't check 'secret base64 encoded'):
+JWT_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.Qct2vz_gGPmjtvJFHkl1rKVhgUJlBs7JDgmaTiLx-qk
+curl -i -H "Authorization: Bearer ${JWT_TOKEN}" "http://localhost:18080/annotation/w3c/services/stats/target?field=source"
+curl -i -H "Authorization: Bearer ${JWT_TOKEN}" "http://localhost:18080/annotation/w3c/services/stats/target?field=id"
+curl -i -H "Authorization: Bearer ${JWT_TOKEN}" "http://localhost:18080/annotation/w3c/services/search/target?fields=source&value=urn"
+curl -i -H "Authorization: Bearer ${JWT_TOKEN}" "http://localhost:18080/annotation/w3c/services/search/range?target_id=https%3A%2F%2Fdemorepo.tt.di.huc.knaw.nl%2Ftask%2Ffind%2Fvolume-1728%2Fcontents&range_start=55900&range_end=55990"
+
+
+----
+benodigde ruimte per annotatie:
+/var/lib/postgresql/ is 85000 83.0M
+select count(*) from annotation = 3627
+0.03 M / anno
+docker images: 1.5G
+
+349.5M
+ 21250 annotaties
+
+delta:
+266.5 M / 17623 = 0.015 M / annotatie
+
+
+https://iiif.io/api/extension/text-granularity/
